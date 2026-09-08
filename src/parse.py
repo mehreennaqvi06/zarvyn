@@ -24,7 +24,7 @@ INFIX = {
 MAX_DEPTH = 200
 
 # Tokens we resynchronise on after a parse error.
-SYNC = {T.SEMI, T.RBRACE, T.FN, T.STRUCT, T.LET, T.IF, T.WHILE, T.RETURN, T.EOF}
+SYNC = {T.SEMI, T.RBRACE, T.FN, T.STRUCT, T.LET, T.IF, T.WHILE, T.FOR, T.RETURN, T.EOF}
 
 
 class ParseError(Exception):
@@ -169,6 +169,8 @@ class Parser:
             return self.if_stmt()
         if self.at(T.WHILE):
             return self.while_stmt()
+        if self.at(T.FOR):
+            return self.for_stmt() 
         if self.at(T.RETURN):
             return self.return_stmt()
         if self.at(T.DEFER):
@@ -217,6 +219,14 @@ class Parser:
         cond = self.expr()
         body = self.block()
         return A.While(cond, body, start.to(body.span))
+
+    def for_stmt(self) -> A.For:
+        start = self.advance().span
+        var_tok = self.expect(T.IDENT, "a loop variable name")
+        self.expect(T.IN, "`in`")
+        iterable = self.expr()
+        body = self.block()
+        return A.For(var_tok.text, iterable, body, start.to(body.span))
 
     def return_stmt(self) -> A.Return:
         start = self.advance().span

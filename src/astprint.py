@@ -57,6 +57,9 @@ def sexpr(node, indent: int = 0) -> str:
         case A.While():
             return block("while", [node.cond, node.body])
 
+        case A.For():
+            return block(f"for {node.var_name}", [node.iterable, node.body])
+
         case A.Return():
             return block("return", [node.value] if node.value else [])
 

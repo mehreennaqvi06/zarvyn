@@ -183,3 +183,10 @@ class StructDecl:
 @dataclass
 class Program:
     items: list = field(default_factory=list)
+
+@dataclass
+class For:
+    var_name: str
+    iterable: object
+    body: object
+    span: Span = None

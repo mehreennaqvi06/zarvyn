@@ -17,4 +17,6 @@ fn main() -> int {
     }
     let piped = 5 + 1 |> double;
     return total;
+    
+    for i in items { total = total + i; }
 }

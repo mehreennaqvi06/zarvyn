@@ -49,4 +49,13 @@
             (int 1))
           (name double)))
       (return
-        (name total)))))
+        (name total))
+      (for i
+        (name items)
+        (block
+          (expr-stmt
+            (assign
+              (name total)
+              (binary +
+                (name total)
+                (name i)))))))))
