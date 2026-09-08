@@ -1,0 +1,4 @@
+fn main() {
+    let s = "never closed
+    let x = 5 @ 3;
+    /* open comment

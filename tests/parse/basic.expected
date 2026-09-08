@@ -1,0 +1,52 @@
+(program
+  (struct Point
+    (field x int)
+    (field y int))
+  (fn double
+    (param n int)
+    (type int)
+    (block
+      (return
+        (binary *
+          (name n)
+          (int 2)))))
+  (fn main
+    (type int)
+    (block
+      (let mut total
+        (int 0))
+      (let p
+        (name Point))
+      (while
+        (binary <
+          (name total)
+          (int 10))
+        (block
+          (expr-stmt
+            (assign
+              (name total)
+              (binary +
+                (name total)
+                (binary *
+                  (int 2)
+                  (int 3)))))
+          (if
+            (binary &&
+              (binary ==
+                (name total)
+                (int 6))
+              (bool true))
+            (block
+              (continue)))
+          (defer
+            (call
+              (name log)
+              (name total)))))
+      (let piped
+        (binary |>
+          (binary +
+            (int 5)
+            (int 1))
+          (name double)))
+      (return
+        (name total)))))

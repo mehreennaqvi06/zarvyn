@@ -1,0 +1,38 @@
+FN 0..2 'fn'
+IDENT 3..7 'main'
+LPAREN 7..8 ''
+RPAREN 8..9 ''
+LBRACE 10..11 ''
+LET 17..20 'let'
+IDENT 21..22 's'
+EQ 23..24 ''
+ERROR 25..39 '"never closed\r'
+LET 44..47 'let'
+IDENT 48..49 'x'
+EQ 50..51 ''
+INT 52..53 '5'
+ERROR 54..55 '@'
+INT 56..57 '3'
+SEMI 57..58 ''
+EOF 79..79 ''
+
+error[ZV-L0001]: unterminated string literal
+ --> errors.zvn:2:13
+  |
+2 |     let s = "never closed
+  |             ^^^^^^^^^^^^^^ this string is never closed
+  |
+
+error[ZV-L0006]: unexpected character
+ --> errors.zvn:3:15
+  |
+3 |     let x = 5 @ 3;
+  |               ^ this character is not valid Zarvyn
+  |
+
+error[ZV-L0003]: unterminated block comment
+ --> errors.zvn:4:5
+  |
+4 |     /* open comment
+  |     ^^ this comment is never closed
+  |

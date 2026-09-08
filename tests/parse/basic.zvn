@@ -1,0 +1,20 @@
+struct Point {
+    x: int,
+    y: int,
+}
+
+fn double(n: int) -> int {
+    return n * 2;
+}
+
+fn main() -> int {
+    let mut total = 0;
+    let p = Point;
+    while total < 10 {
+        total = total + 2 * 3;
+        if total == 6 && true { continue; }
+        defer log(total);
+    }
+    let piped = 5 + 1 |> double;
+    return total;
+}

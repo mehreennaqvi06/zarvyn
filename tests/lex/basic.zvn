@@ -1,0 +1,6 @@
+fn main() -> int {
+    let mut n = 42;
+    /* a /* nested */ comment */
+    if n >= 10 && n != 0 { n = n |> double; }
+    return n;
+}
