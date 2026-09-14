@@ -20,7 +20,13 @@
       (let mut total
         (int 0))
       (let p
-        (name Point))
+        (struct-lit Point
+          (init x
+            (int 1))
+          (init y
+            (binary +
+              (int 2)
+              (int 3)))))
       (while
         (binary <
           (name total)

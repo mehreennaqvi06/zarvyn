@@ -117,4 +117,10 @@ def sexpr(node, indent: int = 0) -> str:
         case A.Name():
             return f"{pad}(name {node.name})"
 
+        case A.StructLit():
+            return block(f"struct-lit {node.type_name}", node.fields)
+
+        case A.FieldInit():
+            return block(f"init {node.name}", [node.value])
+
     return f"{pad}(??? {type(node).__name__})"

@@ -203,3 +203,16 @@ class EnumDecl:
     name: str
     variants: list = field(default_factory=list)
     span: Span = None
+
+@dataclass
+class FieldInit:
+    name: str
+    value: object
+    span: Span = None
+
+
+@dataclass
+class StructLit:
+    type_name: str
+    fields: list = field(default_factory=list)
+    span: Span = None

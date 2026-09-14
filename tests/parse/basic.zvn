@@ -15,7 +15,7 @@ fn double(n: int) -> int {
 
 fn main() -> int {
     let mut total = 0;
-    let p = Point;
+    let p = Point { x: 1, y: 2 + 3 };
     while total < 10 {
         total = total + 2 * 3;
         if total == 6 && true { continue; }

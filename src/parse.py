@@ -37,6 +37,7 @@ class Parser:
         self.bag = bag
         self.i = 0
         self.depth = 0
+        self.no_struct = 0
 
     # ---------- token helpers ----------
 
@@ -230,7 +231,9 @@ class Parser:
 
     def if_stmt(self) -> A.If:
         start = self.advance().span
+        self.no_struct += 1
         cond = self.expr()
+        self.no_struct -= 1
         then_block = self.block()
         else_block = None
         if self.eat(T.ELSE):
@@ -248,7 +251,9 @@ class Parser:
         start = self.advance().span
         var_tok = self.expect(T.IDENT, "a loop variable name")
         self.expect(T.IN, "`in`")
+        self.no_struct += 1
         iterable = self.expr()
+        self.no_struct -= 1
         body = self.block()
         return A.For(var_tok.text, iterable, body, start.to(body.span))
 
@@ -337,6 +342,22 @@ class Parser:
                 node = A.Index(node, index, node.span.to(end))
             else:
                 return node
+            
+    def struct_lit(self, name_tok) -> A.StructLit:
+        self.expect(T.LBRACE, "`{`")
+        saved = self.no_struct
+        self.no_struct = 0
+        fields = []
+        while not self.at(T.RBRACE):
+            f_name = self.expect(T.IDENT, "a field name")
+            self.expect(T.COLON, "`:` after the field name")
+            value = self.expr(0)
+            fields.append(A.FieldInit(f_name.text, value, f_name.span.to(value.span)))
+            if not self.eat(T.COMMA):
+                break
+        end = self.expect(T.RBRACE, "`}`").span
+        self.no_struct = saved
+        return A.StructLit(name_tok.text, fields, name_tok.span.to(end))
 
     def primary(self):
         tok = self.peek()
@@ -358,6 +379,8 @@ class Parser:
             return A.BoolLit(False, tok.span)
         if tok.kind is T.IDENT:
             self.advance()
+            if self.at(T.LBRACE) and self.no_struct == 0:
+                return self.struct_lit(tok)
             return A.Name(tok.text, tok.span)
 
         if tok.kind is T.LPAREN:
