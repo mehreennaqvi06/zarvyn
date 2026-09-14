@@ -189,4 +189,17 @@ class For:
     var_name: str
     iterable: object
     body: object
+    span: Span = None 
+
+@dataclass
+class EnumVariant:
+    name: str
+    payload_types: list = field(default_factory=list)
+    span: Span = None
+
+
+@dataclass
+class EnumDecl:
+    name: str
+    variants: list = field(default_factory=list)
     span: Span = None

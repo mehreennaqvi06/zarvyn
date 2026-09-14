@@ -1,3 +1,9 @@
+enum Shape {
+    Circle(int),
+    Rect(int, int),
+    Empty,
+}
+
 struct Point {
     x: int,
     y: int,

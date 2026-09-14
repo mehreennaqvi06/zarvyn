@@ -34,6 +34,15 @@ def sexpr(node, indent: int = 0) -> str:
         case A.StructField():
             return f"{pad}(field {node.name} {node.declared_type.name})"
 
+        case A.EnumDecl():
+            return block(f"enum {node.name}", node.variants)
+
+        case A.EnumVariant():
+            if not node.payload_types:
+                return f"{pad}(variant {node.name})"
+            types = " ".join(t.name for t in node.payload_types)
+            return f"{pad}(variant {node.name} {types})"
+
         case A.TypeName():
             return f"{pad}(type {node.name})"
 

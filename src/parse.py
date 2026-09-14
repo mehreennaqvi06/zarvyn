@@ -81,7 +81,7 @@ class Parser:
     def recover(self) -> None:
         """Skip tokens until we reach something that can start a new item."""
         while not self.at(T.EOF):
-            if self.peek().kind in (T.FN, T.STRUCT):
+            if self.peek().kind in (T.FN, T.STRUCT, T.ENUM):
                 return
             if self.eat(T.SEMI) or self.eat(T.RBRACE):
                 return
@@ -92,6 +92,8 @@ class Parser:
             return self.fn_decl()
         if self.at(T.STRUCT):
             return self.struct_decl()
+        if self.at(T.ENUM):
+            return self.enum_decl() 
         got = self.peek()
         self.bag.error("ZV-P0002", "expected a top-level declaration").with_label(
             got.span, "only `fn` and `struct` can appear here"
@@ -137,6 +139,28 @@ class Parser:
                 break
         end = self.expect(T.RBRACE, "`}`").span
         return A.StructDecl(name_tok.text, fields, start.to(end))
+
+    def enum_decl(self) -> A.EnumDecl:
+        start = self.expect(T.ENUM, "`enum`").span
+        name_tok = self.expect(T.IDENT, "an enum name")
+        self.expect(T.LBRACE, "`{`")
+
+        variants = []
+        while not self.at(T.RBRACE):
+            v_name = self.expect(T.IDENT, "a variant name")
+            payload = []
+            v_end = v_name.span
+            if self.eat(T.LPAREN):
+                while not self.at(T.RPAREN):
+                    payload.append(self.type_ref())
+                    if not self.eat(T.COMMA):
+                        break
+                v_end = self.expect(T.RPAREN, "`)`").span
+            variants.append(A.EnumVariant(v_name.text, payload, v_name.span.to(v_end)))
+            if not self.eat(T.COMMA):
+                break
+        end = self.expect(T.RBRACE, "`}`").span
+        return A.EnumDecl(name_tok.text, variants, start.to(end)) 
 
     def type_ref(self) -> A.TypeName:
         tok = self.expect(T.IDENT, "a type name")

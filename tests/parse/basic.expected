@@ -1,4 +1,8 @@
 (program
+  (enum Shape
+    (variant Circle int)
+    (variant Rect int int)
+    (variant Empty))
   (struct Point
     (field x int)
     (field y int))
