@@ -123,4 +123,30 @@ def sexpr(node, indent: int = 0) -> str:
         case A.FieldInit():
             return block(f"init {node.name}", [node.value])
 
+        case A.Match():
+            return block("match", [node.scrutinee, *node.arms])
+
+        case A.MatchArm():
+            return block("arm", [node.pattern, node.body])
+
+        case A.PatWild():
+            return f"{pad}(pat _)"
+
+        case A.PatBind():
+            return f"{pad}(pat-bind {node.name})"
+
+        case A.PatLit():
+            return f"{pad}(pat-lit {node.value!r})"
+
+        case A.PatVariant():
+            path = "::".join(node.path)
+            return block(f"pat-variant {path}", node.sub_patterns)
+
+        case A.PatStruct():
+            head = f"pat-struct {node.type_name}{' ..' if node.rest else ''}"
+            return block(head, node.fields)
+
+        case A.PatField():
+            return block(f"pat-field {node.name}", [node.pattern])
+
     return f"{pad}(??? {type(node).__name__})"

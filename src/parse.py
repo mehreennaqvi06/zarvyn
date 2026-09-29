@@ -24,7 +24,7 @@ INFIX = {
 MAX_DEPTH = 200
 
 # Tokens we resynchronise on after a parse error.
-SYNC = {T.SEMI, T.RBRACE, T.FN, T.STRUCT, T.LET, T.IF, T.WHILE, T.FOR, T.RETURN, T.EOF}
+SYNC = {T.SEMI, T.RBRACE, T.MATCH, T.FN, T.STRUCT, T.LET, T.IF, T.WHILE, T.FOR, T.RETURN, T.EOF}
 
 
 class ParseError(Exception):
@@ -200,6 +200,8 @@ class Parser:
             return self.return_stmt()
         if self.at(T.DEFER):
             return self.defer_stmt()
+        if self.at(T.MATCH):
+            return self.match_stmt()
         if self.at(T.BREAK):
             tok = self.advance()
             end = self.expect(T.SEMI, "`;`").span
@@ -270,6 +272,98 @@ class Parser:
         expr = self.expr()
         end = self.expect(T.SEMI, "`;`").span
         return A.Defer(expr, start.to(end))
+
+    def match_stmt(self) -> A.Match:
+        start = self.advance().span
+        self.no_struct += 1
+        scrutinee = self.expr()
+        self.no_struct -= 1
+        self.expect(T.LBRACE, "`{`")
+
+        arms = []
+        while not self.at(T.RBRACE) and not self.at(T.EOF):
+            pat = self.pattern()
+            self.expect(T.FATARROW, "`=>` after the pattern")
+            if self.at(T.LBRACE):
+                body = self.block()
+            else:
+                body = self.expr(0)
+            arms.append(A.MatchArm(pat, body, pat.span.to(body.span)))
+            self.eat(T.COMMA)
+        end = self.expect(T.RBRACE, "`}`").span
+        return A.Match(scrutinee, arms, start.to(end))
+
+    def pattern(self):
+        tok = self.peek()
+
+        if tok.kind is T.INT:
+            self.advance()
+            return A.PatLit(tok.value, tok.span)
+        if tok.kind is T.STRING:
+            self.advance()
+            return A.PatLit(tok.value, tok.span)
+        if tok.kind is T.TRUE:
+            self.advance()
+            return A.PatLit(True, tok.span)
+        if tok.kind is T.FALSE:
+            self.advance()
+            return A.PatLit(False, tok.span)
+
+        if tok.kind is T.IDENT:
+            if tok.text == "_":
+                self.advance()
+                return A.PatWild(tok.span)
+
+            path = [self.advance()]
+            while self.at(T.COLON) and self.peek(1).kind is T.COLON:
+                self.advance()
+                self.advance()
+                path.append(self.expect(T.IDENT, "a path segment"))
+
+            if self.at(T.LPAREN):
+                self.advance()
+                subs = []
+                while not self.at(T.RPAREN):
+                    subs.append(self.pattern())
+                    if not self.eat(T.COMMA):
+                        break
+                end = self.expect(T.RPAREN, "`)`").span
+                names = [t.text for t in path]
+                return A.PatVariant(names, subs, path[0].span.to(end))
+
+            if self.at(T.LBRACE):
+                return self.pattern_struct(path[0])
+
+            if len(path) > 1:
+                names = [t.text for t in path]
+                return A.PatVariant(names, [], path[0].span.to(path[-1].span))
+            return A.PatBind(path[0].text, path[0].span)
+
+        self.bag.error("ZV-P0005", "expected a pattern").with_label(
+            tok.span, f"found {tok.kind.name.lower()} here"
+        )
+        raise ParseError()
+
+    def pattern_struct(self, name_tok) -> A.PatStruct:
+        self.expect(T.LBRACE, "`{`")
+        fields = []
+        rest = False
+        while not self.at(T.RBRACE):
+            if self.at(T.DOT) and self.peek(1).kind is T.DOT:
+                self.advance()
+                self.advance()
+                rest = True
+                break
+            f_name = self.expect(T.IDENT, "a field name")
+            if self.eat(T.COLON):
+                sub = self.pattern()
+            else:
+                sub = A.PatBind(f_name.text, f_name.span)
+            fields.append(A.PatField(f_name.text, sub, f_name.span.to(sub.span)))
+            if not self.eat(T.COMMA):
+                break
+        end = self.expect(T.RBRACE, "`}`").span
+        return A.PatStruct(name_tok.text, fields, rest, name_tok.span.to(end))
 
     # ---------- expressions (Pratt) ----------
 

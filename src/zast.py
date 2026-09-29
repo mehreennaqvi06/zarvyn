@@ -216,3 +216,59 @@ class StructLit:
     type_name: str
     fields: list = field(default_factory=list)
     span: Span = None
+
+# ---------- patterns ----------
+
+@dataclass
+class PatWild:
+    span: Span = None
+
+
+@dataclass
+class PatBind:
+    name: str
+    span: Span = None
+
+
+@dataclass
+class PatLit:
+    value: object
+    span: Span = None
+
+
+@dataclass
+class PatVariant:
+    """Shape::Circle(r) or Circle(r)"""
+    path: list = field(default_factory=list)
+    sub_patterns: list = field(default_factory=list)
+    span: Span = None
+
+
+@dataclass
+class PatStruct:
+    """Point { x, y: other }"""
+    type_name: str
+    fields: list = field(default_factory=list)
+    rest: bool = False
+    span: Span = None
+
+
+@dataclass
+class PatField:
+    name: str
+    pattern: object
+    span: Span = None
+
+
+@dataclass
+class MatchArm:
+    pattern: object
+    body: object
+    span: Span = None
+
+
+@dataclass
+class Match:
+    scrutinee: object
+    arms: list = field(default_factory=list)
+    span: Span = None    

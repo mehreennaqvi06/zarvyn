@@ -58,6 +58,44 @@
             (int 5)
             (int 1))
           (name double)))
+      (match
+        (name shape)
+        (arm
+          (pat-variant Shape::Circle
+            (pat-bind r))
+          (block
+            (expr-stmt
+              (assign
+                (name total)
+                (binary +
+                  (name total)
+                  (name r))))))
+        (arm
+          (pat-variant Shape::Rect
+            (pat-bind w)
+            (pat-bind h))
+          (assign
+            (name total)
+            (binary *
+              (name w)
+              (name h))))
+        (arm
+          (pat-struct Point
+            (pat-field x
+              (pat-bind x))
+            (pat-field y
+              (pat-bind other)))
+          (assign
+            (name total)
+            (name x)))
+        (arm
+          (pat-lit 42)
+          (assign
+            (name total)
+            (int 0)))
+        (arm
+          (pat _)
+          (block)))
       (return
         (name total))
       (for i
