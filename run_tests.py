@@ -12,6 +12,7 @@ from astprint import sexpr
 from parse import Parser
 from resolve import Resolver
 from resolveprint import dump
+from check import Checker
 
 BLESS = "--bless" in sys.argv
 
@@ -49,6 +50,22 @@ def resolve_output(path: pathlib.Path) -> str:
     for d in bag.sorted():
         parts.append(render(sf, d))
         parts.append("")
+    return "\n".join(parts) + "\n"
+
+def check_output(path: pathlib.Path) -> str:
+    sf = SourceFile(path.name, path.read_bytes())
+    bag = DiagBag()
+    toks = Lexer(sf, bag).tokens()
+    prog = Parser(toks, bag).program()
+    r = Resolver(bag)
+    r.run(prog)
+    Checker(bag, r).run(prog)
+    parts = []
+    for d in bag.sorted():
+        parts.append(render(sf, d))
+        parts.append("")
+    if not parts:
+        parts.append("no diagnostics")
     return "\n".join(parts) + "\n"
 
 def main() -> int:
@@ -110,6 +127,26 @@ def main() -> int:
             passed += 1
         else:
             print(f"FAILED   resolve/{zvn.name}")
+            failed += 1
+            for line in _diff(expected, actual):
+                print("   " + line)
+
+    for zvn in sorted((ROOT / "tests" / "check").glob("*.zvn")):
+        expected_path = zvn.with_suffix(".expected")
+        actual = check_output(zvn)
+
+        if BLESS or not expected_path.exists():
+            expected_path.write_text(actual, encoding="utf-8", newline="\n")
+            print(f"blessed  check/{zvn.name}")
+            blessed += 1
+            continue
+
+        expected = expected_path.read_text(encoding="utf-8", newline="\n")
+        if actual == expected:
+            print(f"ok       check/{zvn.name}")
+            passed += 1
+        else:
+            print(f"FAILED   check/{zvn.name}")
             failed += 1
             for line in _diff(expected, actual):
                 print("   " + line)

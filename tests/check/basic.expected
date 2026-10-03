@@ -1,0 +1,61 @@
+error[ZV-T0104]: type mismatch in variable initializer
+  --> basic.zvn:32:22
+   |
+32 |     let count: int = "hello";
+   |                --- expected due to this type annotation
+   |                      ^^^^^^^ expected `int`, found `string`
+   |
+
+error[ZV-T0115]: `+` needs matching operand types
+  --> basic.zvn:33:21
+   |
+33 |     let mixed = 1 + "two";
+   |                 - expected `int` to match
+   |                     ^^^^^ found `string`
+   |
+
+error[ZV-T0122]: argument type mismatch
+  --> basic.zvn:34:24
+   |
+34 |     let wrong = double("nope");
+   |                        ^^^^^^ expected `int`, found `string`
+   |
+
+error[ZV-T0202]: return type mismatch
+  --> basic.zvn:35:5
+   |
+35 |     return true;
+   |     ^^^^^^^^^^^^ expected `int`, found `bool`
+   |
+
+error[ZV-T0301]: match is not exhaustive
+  --> basic.zvn:39:5
+   |
+39 |     match s {
+   |     ^ these cases are not handled: `Empty`
+   |
+   = help: add a `_ => ...` arm, or handle the missing cases
+
+error[ZV-T0307]: wrong number of fields in variant pattern
+  --> basic.zvn:41:9
+   |
+41 |         Shape::Rect(w) => return w;
+   |         ^^^^^^^^^^^^^^ `Rect` takes 2, found 1
+   |
+
+error[ZV-T0303]: unreachable match arm
+  --> basic.zvn:48:9
+   |
+47 |         _ => return 0;
+   |         - because this arm matches everything
+48 |         Shape::Empty => return 1;
+   |         ^^^^^^^^^^^^ this arm can never match
+   |
+
+error[ZV-T0201]: not every path through `no_return` returns a value
+  --> basic.zvn:52:1
+   |
+52 | fn no_return(n: int) -> int {
+   | ^ this function must return `int`
+   |
+

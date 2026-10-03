@@ -286,6 +286,8 @@ class Parser:
             self.expect(T.FATARROW, "`=>` after the pattern")
             if self.at(T.LBRACE):
                 body = self.block()
+            elif self.peek().kind in (T.RETURN, T.BREAK, T.CONTINUE):
+                body = self.stmt()
             else:
                 body = self.expr(0)
             arms.append(A.MatchArm(pat, body, pat.span.to(body.span)))

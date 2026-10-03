@@ -1,0 +1,54 @@
+struct Point {
+    x: int,
+    y: int,
+}
+
+enum Shape {
+    Circle(int),
+    Rect(int, int),
+    Empty,
+}
+
+fn double(n: int) -> int { return n * 2; }
+
+fn area(s: Shape) -> int {
+    match s {
+        Shape::Circle(r) => return r * r;
+        Shape::Rect(w, h) => return w * h;
+        Shape::Empty => return 0;
+    }
+}
+
+fn good() -> int {
+    let p = Point { x: 1, y: 2 };
+    let sum = p.x + p.y;
+    let piped = 5 |> double;
+    let flag = sum > 0 && piped < 100;
+    if flag { return sum; }
+    return piped;
+}
+
+fn bad_types() -> int {
+    let count: int = "hello";
+    let mixed = 1 + "two";
+    let wrong = double("nope");
+    return true;
+}
+
+fn bad_match(s: Shape) -> int {
+    match s {
+        Shape::Circle(r) => return r;
+        Shape::Rect(w) => return w;
+    }
+}
+
+fn unreachable_arm(s: Shape) -> int {
+    match s {
+        _ => return 0;
+        Shape::Empty => return 1;
+    }
+}
+
+fn no_return(n: int) -> int {
+    if n > 0 { return 1; }
+}
