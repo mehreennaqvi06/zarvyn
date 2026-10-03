@@ -96,6 +96,30 @@
         (arm
           (pat _)
           (block)))
+      (let add
+        (lambda
+          (param a int)
+          (param b int)
+          (binary +
+            (name a)
+            (name b))))
+      (let noop
+        (lambda
+          (block
+            (expr-stmt
+              (assign
+                (name total)
+                (binary +
+                  (name total)
+                  (int 1)))))))
+      (let flag
+        (binary ||
+          (binary >
+            (name total)
+            (int 1))
+          (binary <
+            (name total)
+            (int 0))))
       (return
         (name total))
       (for i

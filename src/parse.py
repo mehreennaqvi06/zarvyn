@@ -477,6 +477,27 @@ class Parser:
                 return self.struct_lit(tok)
             return A.Name(tok.text, tok.span)
 
+        if tok.kind is T.OROR:
+            self.advance()
+            body = self.block() if self.at(T.LBRACE) else self.expr(0)
+            return A.Lambda([], body, tok.span.to(body.span))
+
+        if tok.kind is T.PIPE_SINGLE:
+            self.advance()
+            params = []
+            while not self.at(T.PIPE_SINGLE):
+                p_tok = self.expect(T.IDENT, "a parameter name")
+                p_type = None
+                if self.eat(T.COLON):
+                    p_type = self.type_ref()
+                end_span = p_type.span if p_type else p_tok.span
+                params.append(A.Param(p_tok.text, p_type, p_tok.span.to(end_span)))
+                if not self.eat(T.COMMA):
+                    break
+            self.expect(T.PIPE_SINGLE, "`|` to close the parameter list")
+            body = self.block() if self.at(T.LBRACE) else self.expr(0)
+            return A.Lambda(params, body, tok.span.to(body.span))
+        
         if tok.kind is T.LPAREN:
             self.advance()
             inner = self.expr(0)

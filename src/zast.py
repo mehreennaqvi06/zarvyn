@@ -271,4 +271,10 @@ class MatchArm:
 class Match:
     scrutinee: object
     arms: list = field(default_factory=list)
-    span: Span = None    
+    span: Span = None  
+
+@dataclass
+class Lambda:
+    params: list = field(default_factory=list)
+    body: object = None
+    span: Span = None

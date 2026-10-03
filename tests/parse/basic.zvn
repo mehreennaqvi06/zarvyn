@@ -29,6 +29,9 @@ fn main() -> int {
         42 => total = 0,
         _ => {}
     }
+    let add = |a: int, b: int| a + b;
+    let noop = || { total = total + 1; };
+    let flag = total > 1 || total < 0;
     return total;
     
     for i in items { total = total + i; }

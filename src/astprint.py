@@ -26,6 +26,8 @@ def sexpr(node, indent: int = 0) -> str:
             return block(f"fn {node.name}", parts)
 
         case A.Param():
+            if node.declared_type is None:
+                return f"{pad}(param {node.name})"
             return f"{pad}(param {node.name} {node.declared_type.name})"
 
         case A.StructDecl():
@@ -125,6 +127,9 @@ def sexpr(node, indent: int = 0) -> str:
 
         case A.Match():
             return block("match", [node.scrutinee, *node.arms])
+
+        case A.Lambda():
+            return block("lambda", [*node.params, node.body])
 
         case A.MatchArm():
             return block("arm", [node.pattern, node.body])

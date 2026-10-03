@@ -58,6 +58,7 @@ class T(Enum):
     ANDAND = auto()
     OROR = auto()
     PIPE = auto()
+    PIPE_SINGLE = auto()
     # bookkeeping
     ERROR = auto()
     EOF = auto()

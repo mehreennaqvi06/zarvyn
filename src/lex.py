@@ -188,7 +188,7 @@ class Lexer:
             0x2C: T.COMMA, 0x3B: T.SEMI, 0x3A: T.COLON, 0x2E: T.DOT,
             0x2B: T.PLUS, 0x2D: T.MINUS, 0x2A: T.STAR,
             0x2F: T.SLASH, 0x25: T.PERCENT,
-            0x3D: T.EQ, 0x21: T.BANG, 0x3C: T.LT, 0x3E: T.GT,
+            0x3D: T.EQ, 0x21: T.BANG, 0x3C: T.LT, 0x3E: T.GT, 0x7C: T.PIPE_SINGLE,
         }
         if b in one:
             self.i += 1
