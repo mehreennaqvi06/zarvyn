@@ -1,0 +1,40 @@
+fn cleanup(n: int) -> int { return n; }
+fn tick(n: int) -> int { return n; }
+fn tock(n: int) -> int { return n; }
+fn make_counter() -> int {
+    let mut count = 0;
+    let bump = || { count = count + 1; };
+    let read = || count;
+    bump();
+    return read();
+}
+
+fn shadowing() -> int {
+    let x = 1;
+    {
+        let x = 2;
+        let y = x;
+    }
+    let z = x;
+    return z;
+}
+
+fn defers() -> int {
+    let mut n = 0;
+    defer cleanup(n);
+    while n < 10 {
+        defer tick(n);
+        defer tock(n);
+        if n == 3 { break; }
+        if n == 5 { continue; }
+        if n == 7 { return n; }
+        n = n + 1;
+    }
+    return n;
+}
+
+fn bad() -> int {
+    let frozen = 1;
+    frozen = 2;
+    return missing;
+}

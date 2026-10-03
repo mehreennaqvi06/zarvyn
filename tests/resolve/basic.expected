@@ -1,0 +1,84 @@
+fn cleanup  slots=1
+  param n -> slot 0
+  return  runs 0 defer(s)
+    name n -> slot 0
+
+fn tick  slots=1
+  param n -> slot 0
+  return  runs 0 defer(s)
+    name n -> slot 0
+
+fn tock  slots=1
+  param n -> slot 0
+  return  runs 0 defer(s)
+    name n -> slot 0
+
+fn make_counter  slots=3
+  let count -> slot 0 [mut captured boxed]
+  let bump -> slot 1
+  lambda  slots=0  upvalues=[count<-local:0]
+    name count -> upvalue 0
+    name count -> upvalue 0
+  let read -> slot 2
+  lambda  slots=0  upvalues=[count<-local:0]
+    name count -> upvalue 0
+  name bump -> slot 1
+  return  runs 0 defer(s)
+    name read -> slot 2
+
+fn shadowing  slots=3
+  let x -> slot 0
+  let x -> slot 1
+  let y -> slot 2
+  name x -> slot 1
+  let z -> slot 1
+  name x -> slot 0
+  return  runs 0 defer(s)
+    name z -> slot 1
+
+fn defers  slots=1
+  let n -> slot 0 [mut]
+  defer
+    name cleanup -> global cleanup
+    name n -> slot 0
+  name n -> slot 0
+    defer
+      name tick -> global tick
+      name n -> slot 0
+    defer
+      name tock -> global tock
+      name n -> slot 0
+    name n -> slot 0
+      break  runs 2 defer(s)
+    name n -> slot 0
+      continue  runs 2 defer(s)
+    name n -> slot 0
+      return  runs 3 defer(s)
+        name n -> slot 0
+    name n -> slot 0
+    name n -> slot 0
+  return  runs 1 defer(s)
+    name n -> slot 0
+
+fn bad  slots=1
+  let frozen -> slot 0
+  name frozen -> slot 0
+  return  runs 0 defer(s)
+
+
+error[ZV-R0005]: cannot assign to immutable `frozen`
+  --> basic.zvn:38:5
+   |
+37 |     let frozen = 1;
+   |     --------------- declared without `mut` here
+38 |     frozen = 2;
+   |     ^^^^^^^^^^ this assignment
+   |
+
+error[ZV-R0007]: cannot find `missing` in this scope
+  --> basic.zvn:39:12
+   |
+39 |     return missing;
+   |            ^^^^^^^ not found
+   |
+
